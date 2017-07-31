@@ -1,11 +1,8 @@
 from setuptools import setup
 
-# import ``__version__`` from code base
-exec(open('yabox/_version.py').read())
-
 setup(
     name='yabox',
-    version=__version__,
+    version='0.1',
     description='Yet another black-box optimization library for Python',
     author='Pablo Rodriguez-Mier',
     author_email="pablo.rodriguez.mier@gmail.com",
