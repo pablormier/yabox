@@ -6,7 +6,7 @@ _Yet another black-box optimization library for Python_
 
 ## Description
 
-Yabox is a very small library for black-box (derivative free) optimization of functions that only depends on `numpy` and `matplotlib` for visualization. The library includes different stochastic algorithms for minimizing a function `f(X)`, where `X = {x1, ..., xN}` that does not need to have an analytical form.
+Yabox is a very small library for black-box (derivative free) optimization of functions that only depends on `numpy` and `matplotlib` for visualization. The library includes different stochastic algorithms for minimizing a function `f(X)`  that does not need to have an analytical form, where `X = {x1, ..., xN}`.
 The current version of the library includes the Differential Evolution algorithm and a modified version for parallel evaluation.
 
 Example of minimization of the Ackley function (using Yabox and Differential Evolution):
