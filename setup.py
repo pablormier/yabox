@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='yabox',
-    version='0.1',
+    version='1.0.0',
     description='Yet another black-box optimization library for Python',
     author='Pablo Rodriguez-Mier',
     author_email="pablo.rodriguez.mier@gmail.com",
