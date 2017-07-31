@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='yabox',
-    version='1.0.0',
+    version='1.0.1',
     description='Yet another black-box optimization library for Python',
     author='Pablo Rodriguez-Mier',
     author_email="pablo.rodriguez.mier@gmail.com",
@@ -13,6 +13,7 @@ setup(
         'visualization': ['matplotlib>=1.3']},
     tests_require=['pytest', 'pytest-pep8'],
     url='https://github.com/pablormier/yabox',
+    download_url='https://github.com/pablormier/yabox/archive/1.0.1.tar.gz',
     keywords='optimization black-box data science evolutionary algorithms',
     license='Apache License 2.0',
     classifiers=['Intended Audience :: Developers',
