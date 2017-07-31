@@ -6,7 +6,7 @@ setup(
     description='Yet another black-box optimization library for Python',
     author='Pablo Rodriguez-Mier',
     author_email="pablo.rodriguez.mier@gmail.com",
-    packages=['yabox', 'yabox.de', 'yabox.problems'],
+    packages=['yabox'],
     install_requires=['numpy>=1.7'],
     extras_require={
         'notebooks': ['jupyter>=1.0.0'],
