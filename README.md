@@ -13,4 +13,21 @@ Example of minimization of the Ackley function (using Yabox and Differential Evo
 
 ![Ackley Function](../master/notebooks/img/ackley.gif?raw=true)
 
+## Basic usage
+
+### Pre-defined functions
+Yabox includes some default benchmark functions used in black-box optimization, available in the package yabox.problems. These functions also include 2D and 3D plotting capabilities:
+
+```python
+from yabox.problems import CrossInTray
+cross = CrossInTray()
+cross.plot3d()
+```
+![CrossInTray Function](../master/docs/images/crossintray.png?raw=true)
+
+### Optimization
+
+Example using Differential Evolution
+
+![Optimization example](../master/docs/images/opt_example.gif?raw=true)
 
