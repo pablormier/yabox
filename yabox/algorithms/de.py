@@ -89,7 +89,7 @@ class DE:
             step += 1
             if step > self.maxiters:
                 if show_progress:
-                    iterator.n = 100
+                    iterator.n = self.maxiters
                     iterator.refresh()
                     iterator.close()
                 return self._denorm(P[idx]), fitness[idx]
