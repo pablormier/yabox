@@ -19,19 +19,28 @@ Example of minimization of the Ackley function (using Yabox and Differential Evo
 Yabox includes some default benchmark functions used in black-box optimization, available in the package yabox.problems. These functions also include 2D and 3D plotting capabilities:
 
 ```python
-from yabox.problems import CrossInTray
-cross = CrossInTray()
-cross.plot3d()
+>>> from yabox.problems import CrossInTray
+>>> problem = CrossInTray()
+>>> problem.plot3d()
 ```
+
 ![CrossInTray Function](../master/docs/images/crossintray.png?raw=true)
+
+A problem is just a function that can be evaluated for a given X:
+```python
+>>> problem(np.array([1,1,1]))
+-2.0342415830385301
+```
+
 
 ### Optimization
 
 Simple example minimizing a function of one variable `x` using Differential Evolution, searching between -10 <= x <= 10:
 
 ```python
-from yabox import DE
-DE(lambda x: sum(x**2), [(-10, 10)]).solve()
+>>> from yabox import DE
+>>> DE(lambda x: sum(x**2), [(-10, 10)]).solve()
+(array([ 0.]), 0.0)
 ```
 
 Example using Differential Evolution and showing progress (requires tqdm)
