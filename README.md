@@ -27,11 +27,18 @@ cross.plot3d()
 
 ### Optimization
 
-Example using Differential Evolution
+Simple example minimizing a function of one variable `x` using Differential Evolution, searching between -10 <= x <= 10:
+
+```python
+from yabox import DE
+DE(lambda x: sum(x**2), [(-10, 10)]).solve()
+```
+
+Example using Differential Evolution and showing progress (requires tqdm)
 
 ![Optimization example](../master/docs/images/opt_example.gif?raw=true)
 
 ## About
 
-This library is inspired in the scipy's differential evolution implementation. The main goal of this project is to include a set of stochastic black-box optimization algorithms in a small library with minimal dependencies.
+This library is inspired in the scipy's differential evolution implementation. The main goal of Yabox is to include a larger set of stochastic black-box optimization algorithms plus many utilities, all in a small library with minimal dependencies.
 
