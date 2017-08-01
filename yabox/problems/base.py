@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from time import time
-import types
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -57,6 +56,7 @@ class BaseProblem:
 
     def plot3d(self, points=100, contour_levels=20, ax3d=None, figsize=(12, 8),
                view_init=None, surface_kwds=None, contour_kwds=None):
+        from mpl_toolkits.mplot3d import Axes3D
         contour_settings = dict(contour_default_settings)
         surface_settings = dict(surface_default_settings)
         if contour_kwds is not None:
@@ -70,7 +70,7 @@ class BaseProblem:
         Z = self(np.asarray([X, Y]))
         if ax3d is None:
             fig = plt.figure(figsize=figsize)
-            ax = fig.gca(projection='3d')
+            ax = Axes3D(fig)
             if view_init is not None:
                 ax.view_init(*view_init)
         else:
