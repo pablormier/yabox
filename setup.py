@@ -11,7 +11,7 @@ setup(
     extras_require={
         'notebooks': ['jupyter>=1.0.0'],
         'visualization': ['matplotlib>=1.3'],
-        'show_progress': ['tqdm>=4.0.0']},
+        'show_progress': ['tqdm>=4.15.0']},
     tests_require=['pytest', 'pytest-pep8'],
     url='https://github.com/pablormier/yabox',
     download_url='https://github.com/pablormier/yabox/archive/1.0.2.tar.gz',
