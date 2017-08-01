@@ -31,3 +31,7 @@ Example using Differential Evolution
 
 ![Optimization example](../master/docs/images/opt_example.gif?raw=true)
 
+## About
+
+This library is inspired in the scipy's differential evolution implementation. The main goal of this project is to include a set of stochastic black-box optimization algorithms in a small library with minimal dependencies.
+
