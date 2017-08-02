@@ -13,6 +13,7 @@ Example of minimization of the Ackley function (using Yabox and Differential Evo
 
 ## Installation
 
+Yabox is in PyPI so you can use the following command to install the latest released version:
 ```bash
 pip install yabox
 ```
