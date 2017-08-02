@@ -1,6 +1,4 @@
-<img src='../master/docs/images/yabox.png?raw=true' width=250 align=right />
-
-# Yabox
+# <img src='../master/docs/images/yabox.png?raw=true' width=300 />
 
 _Yet another black-box optimization library for Python_
 
@@ -12,6 +10,12 @@ The current version of the library includes the Differential Evolution algorithm
 Example of minimization of the Ackley function (using Yabox and Differential Evolution):
 
 ![Ackley Function](../master/notebooks/img/ackley.gif?raw=true)
+
+## Installation
+
+```bash
+pip install yabox
+```
 
 ## Basic usage
 
