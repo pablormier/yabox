@@ -167,8 +167,3 @@ class Easom(BaseProblem):
         x1, x2 = x[0], x[1]
         return -np.cos(x1) * np.cos(x2) * np.exp(-(x1 - np.pi) ** 2 - (x2 - np.pi) ** 2)
 
-
-def problem(f, bounds):
-    p = BaseProblem(bounds)
-    p.evaluate.__code__ = f.__code__
-    return p

@@ -4,12 +4,21 @@ import numpy as np
 
 class DE:
     def __init__(self, fobj, bounds, mutation=(0.5, 1.0), crossover=0.7, maxiters=1000,
-                 popsize=None, seed=None):
-        B = np.asarray(bounds).T
+                 self_adaptive=False, popsize=None, seed=None):
+        self.adaptive = self_adaptive
+        # Indicates the number of extra parameters in an individual that are not used for evaluating
+        # If extra_params = d, discards the last d elements from an individual prior to evaluation.
+        self.extra_params = 0
+        # If self-adaptive, include mutation and crossover as two new variables
+        bnd = list(bounds)
+        if self_adaptive:
+            bnd.extend([(0, 1)] * 2)
+            self.extra_params = 2
+        B = np.asarray(bnd).T
         self._MIN = B[0]
         self._MAX = B[1]
         self._DIFF = np.fabs(self._MAX - self._MIN)
-        self.dims = len(bounds)
+        self.dims = len(bnd)
         self.crs = crossover
         self.fobj = fobj
         self.maxiters = maxiters
@@ -39,10 +48,15 @@ class DE:
     def _eval_population(self, P):
         # Denormalize population matrix to obtain the scaled parameters
         PD = self._denorm(P)
+        if self.extra_params > 0:
+            PD = PD[:, :-self.extra_params]
         return [self.fobj(ind) for ind in PD]
 
     def _eval(self, ind):
-        return self.fobj(self._denorm(ind))
+        p = self._denorm(ind)
+        if self.extra_params > 0:
+            p = p[:-self.extra_params]
+        return self.fobj(p)
 
     def _rand1(self, target, P, mutation_factor):
         a, b, c = self._sample(target, P, 3)
@@ -56,13 +70,18 @@ class DE:
         best_idx = np.argmin(fitness)
         while True:
             # Apply dithering on each iteration
-            mutation_factor = np.random.uniform(min(self.mutation), max(self.mutation))
+            f = np.random.uniform(min(self.mutation), max(self.mutation))
+            crs = self.crs
             for i in range(self.popsize):
                 target = P[i]
+                if self.adaptive:
+                    # Denormalize and read the values for the mutation and crossover
+                    dt = self._denorm(target)
+                    f, crs = dt[-2:]
                 # Create a mutant using a base vector
-                mutant = self.mutate(i, P, mutation_factor)
+                mutant = self.mutate(i, P, f)
                 # Repair the individual if a gene is out of bounds
-                z = self.repair(self.crossover(target, mutant, self.crs))
+                z = self.repair(self.crossover(target, mutant, crs))
                 new_fitness = self._eval(z)
                 if new_fitness < best_fitness:
                     best_fitness = new_fitness
