@@ -1,6 +1,4 @@
-<img src='../master/docs/images/yabox.png?raw=true' width=250 align=right />
-
-# Yabox
+# <img src='../master/docs/images/yabox.png?raw=true' width=300 />
 
 _Yet another black-box optimization library for Python_
 
@@ -13,25 +11,48 @@ Example of minimization of the Ackley function (using Yabox and Differential Evo
 
 ![Ackley Function](../master/notebooks/img/ackley.gif?raw=true)
 
+## Installation
+
+Yabox is in PyPI so you can use the following command to install the latest released version:
+```bash
+pip install yabox
+```
+
 ## Basic usage
 
 ### Pre-defined functions
 Yabox includes some default benchmark functions used in black-box optimization, available in the package yabox.problems. These functions also include 2D and 3D plotting capabilities:
 
 ```python
-from yabox.problems import CrossInTray
-cross = CrossInTray()
-cross.plot3d()
+>>> from yabox.problems import CrossInTray
+>>> problem = CrossInTray()
+>>> problem.plot3d()
 ```
+
 ![CrossInTray Function](../master/docs/images/crossintray.png?raw=true)
+
+A problem is just a function that can be evaluated for a given X:
+```python
+>>> problem(np.array([1,1,1]))
+-2.0342415830385301
+```
+
 
 ### Optimization
 
-Example using Differential Evolution
+Simple example minimizing a function of one variable `x` using Differential Evolution, searching between -10 <= x <= 10:
+
+```python
+>>> from yabox import DE
+>>> DE(lambda x: sum(x**2), [(-10, 10)]).solve()
+(array([ 0.]), 0.0)
+```
+
+Example using Differential Evolution and showing progress (requires tqdm)
 
 ![Optimization example](../master/docs/images/opt_example.gif?raw=true)
 
 ## About
 
-This library is inspired in the scipy's differential evolution implementation. The main goal of this project is to include a set of stochastic black-box optimization algorithms in a small library with minimal dependencies.
+This library is inspired in the scipy's differential evolution implementation. The main goal of Yabox is to include a larger set of stochastic black-box optimization algorithms plus many utilities, all in a small library with minimal dependencies.
 
