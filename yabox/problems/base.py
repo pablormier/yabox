@@ -197,3 +197,17 @@ class Schwefel(BaseProblem):
         return 418.9829*d - sum(x*np.sin(np.sqrt(np.abs(x))))
 
 
+class Levy(BaseProblem):
+    def __init__(self, bounds=[(-10, 10)] * 2):
+        super().__init__(bounds)
+
+    def evaluate(self, x):
+        w = 1 + (x - 1) / 4
+        wp = w[:-1]
+        wd = w[-1]
+        a = np.sin(np.pi * w[0]) ** 2
+        b = sum((wp - 1) ** 2 * (1 + 10 * np.sin(np.pi * wp + 1) ** 2))
+        c = (wd - 1) ** 2 * (1 + np.sin(2 * np.pi * wd) ** 2)
+        return a + b + c
+
+
