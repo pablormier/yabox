@@ -211,3 +211,12 @@ class Levy(BaseProblem):
         return a + b + c
 
 
+class DixonPrice(BaseProblem):
+    def __init__(self, bounds=[(-10, 10)] * 2):
+        super().__init__(bounds)
+
+    def evaluate(self, x):
+        c = 0
+        for i in range(1, len(x)):
+            c += i * (2 * x[i] ** 2 - x[i-1]) ** 2
+        return (x[0] - 1) ** 2 + c
