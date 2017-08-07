@@ -174,3 +174,15 @@ class StyblinskiTang(BaseProblem):
 
     def evaluate(self, x):
         return sum(x ** 4 - 16 * x ** 2 + 5 * x) / 2
+
+
+class Michalewicz(BaseProblem):
+    def __init__(self, bounds=[(0, np.pi)] * 2, m=10):
+        super().__init__(bounds)
+        self.m = m
+
+    def evaluate(self, x):
+        c = 0
+        for i in range(0, len(self.bounds)):
+            c += np.sin(x[i]) * np.sin(( (i+1) * x[i]**2)/np.pi) ** (2*self.m)
+        return -c
