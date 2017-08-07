@@ -144,8 +144,8 @@ class DE:
 
 class PDE(DE):
     def __init__(self, fobj, bounds, mutation=(0.5, 1.0), crossover=0.7,
-                 maxiters=1000, popsize=None, seed=None, processes=None, chunksize=None):
-        super().__init__(fobj, bounds, mutation, crossover, maxiters, popsize, seed)
+                 maxiters=1000, self_adaptive=False, popsize=None, seed=None, processes=None, chunksize=None):
+        super().__init__(fobj, bounds, mutation, crossover, maxiters, self_adaptive, popsize, seed)
         from multiprocessing import Pool
         self.pool = Pool(processes=processes)
         self.chunksize = chunksize
@@ -156,17 +156,22 @@ class PDE(DE):
         fitness = self._eval_population(P)
         best_fitness = min(fitness)
         best_idx = np.argmin(fitness)
+        crs = self.crs
         while True:
             # Apply dithering on each iteration
-            mutation_factor = np.random.uniform(min(self.mutation), max(self.mutation))
+            f = np.random.uniform(min(self.mutation), max(self.mutation))
             # Create mutants
             mutants = []
             for i in range(self.popsize):
                 target = P[i]
+                if self.adaptive:
+                    # Denormalize and read the values for the mutation and crossover
+                    dt = self._denorm(target)
+                    f, crs = dt[-2:]
                 # Create a mutant using a base vector
-                mutant = self.mutate(i, P, mutation_factor)
+                mutant = self.mutate(i, P, f)
                 # Repair the individual if a gene is out of bounds
-                z = self.repair(self.crossover(target, mutant, self.crs))
+                z = self.repair(self.crossover(target, mutant, crs))
                 mutants.append(z)
             # Evaluate in parallel
             new_fitness = self._eval_population(mutants)
