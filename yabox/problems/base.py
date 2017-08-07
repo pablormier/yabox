@@ -186,3 +186,14 @@ class Michalewicz(BaseProblem):
         for i in range(0, len(self.bounds)):
             c += np.sin(x[i]) * np.sin(( (i+1) * x[i]**2)/np.pi) ** (2*self.m)
         return -c
+
+
+class Schwefel(BaseProblem):
+    def __init__(self, bounds=[(-500, 500)] * 2):
+        super().__init__(bounds)
+
+    def evaluate(self, x):
+        d = len(x)
+        return 418.9829*d - sum(x*np.sin(np.sqrt(np.abs(x))))
+
+
