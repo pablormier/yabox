@@ -12,6 +12,7 @@ class DE:
         # If self-adaptive, include mutation and crossover as two new variables
         bnd = list(bounds)
         if self_adaptive:
+            # TODO: Use the provided mutation values for the bounds
             bnd.extend([(0, 1)] * 2)
             self.extra_params = 2
         B = np.asarray(bnd).T
