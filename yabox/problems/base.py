@@ -167,3 +167,10 @@ class Easom(BaseProblem):
         x1, x2 = x[0], x[1]
         return -np.cos(x1) * np.cos(x2) * np.exp(-(x1 - np.pi) ** 2 - (x2 - np.pi) ** 2)
 
+
+class StyblinskiTang(BaseProblem):
+    def __init__(self, bounds=[(-5, 5)] * 2):
+        super().__init__(bounds)
+
+    def evaluate(self, x):
+        return sum(x ** 4 - 16 * x ** 2 + 5 * x) / 2
