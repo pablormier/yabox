@@ -40,6 +40,7 @@ class DE:
         self.mutate = getattr(self, '_rand1')
         self.repair = getattr(self, '_random_repair')
         self.init = getattr(self, '_random_init')
+        self.name = 'DE'
 
     def _sample(self, exclude_index, P, size):
         idx = [i for i in range(len(P)) if i != exclude_index]
@@ -101,7 +102,7 @@ class DE:
     def solve(self, show_progress=False):
         if show_progress:
             from tqdm import tqdm
-            iterator = tqdm(self, total=self.maxiters, desc='Optimizing (DE)')
+            iterator = tqdm(self, total=self.maxiters, desc='Optimizing ({0})'.format(self.name))
         else:
             iterator = self
         step = 0
@@ -150,6 +151,7 @@ class PDE(DE):
         from multiprocessing import Pool
         self.pool = Pool(processes=processes)
         self.chunksize = chunksize
+        self.name = 'Parallel DE'
 
     def __iter__(self):
         # Initialize a random population of solutions
