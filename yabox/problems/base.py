@@ -220,3 +220,15 @@ class DixonPrice(BaseProblem):
         for i in range(1, len(x)):
             c += i * (2 * x[i] ** 2 - x[i-1]) ** 2
         return (x[0] - 1) ** 2 + c
+
+
+class Griewank(BaseProblem):
+    def __init__(self, bounds=[(-600, 600)] * 2):
+        super().__init__(bounds)
+
+    def evaluate(self, x):
+        a = sum(x ** 2 / 4000)
+        b = 1
+        for i in range(len(x)):
+            b *= np.cos(x[i] / np.sqrt(i+1))
+        return a - b + 1
