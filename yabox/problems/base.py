@@ -26,7 +26,11 @@ surface_default_settings = dict(
 
 
 class BaseProblem:
-    def __init__(self, bounds):
+    def __init__(self, dim=None, bounds=None, default_bounds=(-1, 1)):
+        if bounds is None:
+            bounds = [default_bounds]
+        if dim is not None:
+            bounds = [default_bounds] * dim
         self.dimensions = len(bounds)
         self.bounds = bounds
 
@@ -98,8 +102,8 @@ class Slowdown(BaseProblem):
 
 
 class Ackley(BaseProblem):
-    def __init__(self, bounds=[(-5, 5)] * 2, a=20, b=0.2, c=2 * np.pi):
-        super().__init__(bounds)
+    def __init__(self, dim=2, bounds=None, default_bounds=(-5, 5), a=20, b=0.2, c=2 * np.pi):
+        super().__init__(dim, bounds, default_bounds)
         self.a = a
         self.b = b
         self.c = c
@@ -112,8 +116,8 @@ class Ackley(BaseProblem):
 
 
 class Rastrigin(BaseProblem):
-    def __init__(self, bounds=[(-5.12, 5.12)] * 2, a=10):
-        super().__init__(bounds)
+    def __init__(self, dim=2, bounds=None, default_bounds=(-5.12, 5.12), a=10):
+        super().__init__(dim, bounds, default_bounds)
         self.a = a
 
     def evaluate(self, x):
@@ -123,8 +127,8 @@ class Rastrigin(BaseProblem):
 
 
 class Rosenbrock(BaseProblem):
-    def __init__(self, bounds=[(-10, 10)] * 2, z_shift=0):
-        super().__init__(bounds)
+    def __init__(self, dim=2, bounds=None, default_bounds=(-10, 10), z_shift=0):
+        super().__init__(dim, bounds, default_bounds)
         self.z_shift = z_shift
 
     def evaluate(self, x):
@@ -132,8 +136,8 @@ class Rosenbrock(BaseProblem):
 
 
 class CrossInTray(BaseProblem):
-    def __init__(self, bounds=[(-10, 10)] * 2):
-        super().__init__(bounds)
+    def __init__(self, bounds=None, default_bounds=(-10, 10)):
+        super().__init__(2, bounds, default_bounds)
 
     def evaluate(self, x):
         x1, x2 = x[0], x[1]
@@ -142,8 +146,8 @@ class CrossInTray(BaseProblem):
 
 
 class EggHolder(BaseProblem):
-    def __init__(self, bounds=[(-512, 512)] * 2):
-        super().__init__(bounds)
+    def __init__(self, bounds=None, default_bounds=(-512, 512)):
+        super().__init__(2, bounds, default_bounds)
 
     def evaluate(self, x):
         x1, x2 = x[0], x[1]
@@ -151,8 +155,8 @@ class EggHolder(BaseProblem):
 
 
 class HolderTable(BaseProblem):
-    def __init__(self, bounds=[(-10, 10)] * 2):
-        super().__init__(bounds)
+    def __init__(self, bounds=None, default_bounds=(-10, 10)):
+        super().__init__(2, bounds, default_bounds)
 
     def evaluate(self, x):
         x1, x2 = x[0], x[1]
@@ -160,8 +164,8 @@ class HolderTable(BaseProblem):
 
 
 class Easom(BaseProblem):
-    def __init__(self, bounds=[(-100, 100)] * 2):
-        super().__init__(bounds)
+    def __init__(self, bounds=None, default_bounds=(-100, 100)):
+        super().__init__(2, bounds, default_bounds)
 
     def evaluate(self, x):
         x1, x2 = x[0], x[1]
@@ -169,16 +173,16 @@ class Easom(BaseProblem):
 
 
 class StyblinskiTang(BaseProblem):
-    def __init__(self, bounds=[(-5, 5)] * 2):
-        super().__init__(bounds)
+    def __init__(self, dim=2, bounds=None, default_bounds=(-5, 5)):
+        super().__init__(dim, bounds, default_bounds)
 
     def evaluate(self, x):
         return sum(x ** 4 - 16 * x ** 2 + 5 * x) / 2
 
 
 class Michalewicz(BaseProblem):
-    def __init__(self, bounds=[(0, np.pi)] * 2, m=10):
-        super().__init__(bounds)
+    def __init__(self, dim=2, bounds=None, default_bounds=(0, np.pi), m=10):
+        super().__init__(dim, bounds, default_bounds)
         self.m = m
 
     def evaluate(self, x):
@@ -189,8 +193,8 @@ class Michalewicz(BaseProblem):
 
 
 class Schwefel(BaseProblem):
-    def __init__(self, bounds=[(-500, 500)] * 2):
-        super().__init__(bounds)
+    def __init__(self, dim=2, bounds=None, default_bounds=(-500, 500)):
+        super().__init__(dim, bounds, default_bounds)
 
     def evaluate(self, x):
         d = len(x)
@@ -198,8 +202,8 @@ class Schwefel(BaseProblem):
 
 
 class Levy(BaseProblem):
-    def __init__(self, bounds=[(-10, 10)] * 2):
-        super().__init__(bounds)
+    def __init__(self, dim=2, bounds=None, default_bounds=(-10, 10)):
+        super().__init__(dim, bounds, default_bounds)
 
     def evaluate(self, x):
         w = 1 + (x - 1) / 4
@@ -212,8 +216,8 @@ class Levy(BaseProblem):
 
 
 class DixonPrice(BaseProblem):
-    def __init__(self, bounds=[(-10, 10)] * 2):
-        super().__init__(bounds)
+    def __init__(self, dim=2, bounds=None, default_bounds=(-10, 10)):
+        super().__init__(dim, bounds, default_bounds)
 
     def evaluate(self, x):
         c = 0
@@ -223,8 +227,8 @@ class DixonPrice(BaseProblem):
 
 
 class Griewank(BaseProblem):
-    def __init__(self, bounds=[(-600, 600)] * 2):
-        super().__init__(bounds)
+    def __init__(self, dim=2, bounds=None, default_bounds=(-600, 600)):
+        super().__init__(dim, bounds, default_bounds)
 
     def evaluate(self, x):
         a = sum(x ** 2 / 4000)

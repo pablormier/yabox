@@ -94,7 +94,6 @@ class DE:
         # TODO: Clean duplicate code
         if hasattr(crossover, '__len__'):
             self.c = crossover
-            print('Has len cross')
         else:
             self.c = (crossover, crossover)
         if hasattr(mutation, '__len__'):
