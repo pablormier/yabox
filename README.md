@@ -24,17 +24,17 @@ pip install yabox
 Yabox includes some default benchmark functions used in black-box optimization, available in the package yabox.problems. These functions also include 2D and 3D plotting capabilities:
 
 ```python
->>> from yabox.problems import CrossInTray
->>> problem = CrossInTray()
+>>> from yabox.problems import Levy
+>>> problem = Levy()
 >>> problem.plot3d()
 ```
 
-![CrossInTray Function](../master/docs/images/crossintray.png?raw=true)
+![Levy Function](../master/docs/images/levy.png?raw=true)
 
 A problem is just a function that can be evaluated for a given X:
 ```python
 >>> problem(np.array([1,1,1]))
--2.0342415830385301
+0.80668910823394901
 ```
 
 
