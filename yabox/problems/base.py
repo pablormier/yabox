@@ -187,7 +187,7 @@ class Michalewicz(BaseProblem):
 
     def evaluate(self, x):
         c = 0
-        for i in range(0, len(self.bounds)):
+        for i in range(0, len(x)):
             c += np.sin(x[i]) * np.sin(( (i+1) * x[i]**2)/np.pi) ** (2*self.m)
         return -c
 
