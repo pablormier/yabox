@@ -1,6 +1,8 @@
 # <img src='../master/docs/images/yabox.png?raw=true' width=300 />
+[![DOI](https://zenodo.org/badge/97233963.svg)](https://zenodo.org/badge/latestdoi/97233963)
 
 _Yet another black-box optimization library for Python_
+
 
 ## Description
 
