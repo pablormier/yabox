@@ -5,81 +5,67 @@ import numpy as np
 class DEIterator:
     def __init__(self, de):
         self.de = de
+        self.population = de.init()
+        self.fitness = de.evaluate(self.population)
+        self.best_fitness = min(self.fitness)
+        self.best_idx = np.argmin(self.fitness)
+        self.f, self.cr = de.dither(de.mutation_bounds, de.crossover_bounds)
+        self.iteration = 0
 
     def __iter__(self):
         de = self.de
-        # Initialize a random population of solutions
-        P = de.init()
-        fitness = de.evaluate(P)
-        best_fitness = min(fitness)
-        best_idx = np.argmin(fitness)
         while True:
-            # Apply dithering on each iteration
-            if not de.adaptive:
-                f = de.dither(de.fmut)
-                c = de.dither(de.c)
-
+            # Compute values for f and cr in each iteration
+            self.f, self.cr = self.calculate_params()
             for i in range(de.popsize):
-                target = P[i]
-                if de.adaptive:
-                    # Denormalize and read the values for the mutation and crossover
-                    dt = de.denormalize(target)
-                    f, c = dt[-2:]
-                # Create a mutant using a base vector
-                mutant = de.mutate(i, P, f)
-                # Repair the individual if a gene is out of bounds
-                z = de.repair(de.crossover(target, mutant, c))
-                new_fitness, = de.evaluate([z])
-                if new_fitness < best_fitness:
-                    best_fitness = new_fitness
-                    best_idx = i
-                if new_fitness < fitness[i]:
-                    # The new solution is better, replace
-                    P[i] = z
-                    fitness[i] = new_fitness
-            yield P, fitness, best_idx
+                # Create a mutant using a base vector, and the current f and cr values
+                mutant = self.create_mutant(i)
+                # Evaluate and replace if better
+                self.replace(i, mutant)
+            self.iteration += 1
+            yield self
+
+    def calculate_params(self):
+        return self.de.dither(self.de.mutation_bounds, self.de.crossover_bounds)
+
+    def create_mutant(self, i):
+        return self.de.mutant(i, self.population, self.f, self.cr)
+
+    def replace(self, i, mutant):
+        mutant_fitness, = self.de.evaluate([mutant])
+        return self.replacement(i, mutant, mutant_fitness)
+
+    def replacement(self, target_idx, mutant, mutant_fitness):
+        if mutant_fitness < self.best_fitness:
+            self.best_fitness = mutant_fitness
+            self.best_idx = target_idx
+        if mutant_fitness < self.fitness[target_idx]:
+            self.population[target_idx] = mutant
+            self.fitness[target_idx] = mutant_fitness
+            return True
+        return False
 
 
 class PDEIterator(DEIterator):
     def __init__(self, de):
         super().__init__(de)
+        self.mutants = []
 
-    def __iter__(self):
-        de = self.de
-        # Initialize a random population of solutions
-        P = de.init()
-        fitness = de.evaluate(P)
-        best_fitness = min(fitness)
-        best_idx = np.argmin(fitness)
-        while True:
-            # Apply dithering on each iteration
-            if not de.adaptive:
-                f = de.dither(de.fmut)
-                c = de.dither(de.c)
+    def create_mutant(self, i):
+        mutant = super().create_mutant(i)
+        # Add to the mutants population for parallel evaluation (later)
+        self.mutants.append(mutant)
+        return mutant
 
-            mutants = []
-            for i in range(de.popsize):
-                target = P[i]
-                if de.adaptive:
-                    # Denormalize and read the values for the mutation and crossover
-                    dt = de.denormalize(target)
-                    f, c = dt[-2:]
-                # Create a mutant using a base vector
-                mutant = de.mutate(i, P, f)
-                # Repair the individual if a gene is out of bounds
-                z = de.repair(de.crossover(target, mutant, c))
-                mutants.append(z)
-            # (Parallel) evaluation of the new candidates
-            new_fitness = de.evaluate(mutants)
-            # Replace if better
-            for i in range(de.popsize):
-                if new_fitness[i] < fitness[i]:
-                    P[i] = mutants[i]
-                    fitness[i] = new_fitness[i]
-                if new_fitness[i] < best_fitness:
-                    best_fitness = new_fitness[i]
-                    best_idx = i
-            yield P, fitness, best_idx
+    def replace(self, i, mutant):
+        # Do not analyze after having the whole population (wait until the last individual)
+        if i == self.de.popsize - 1:
+            # Evaluate the whole new population (class PDE implements a parallel version of evaluate)
+            mutant_fitness = self.de.evaluate(self.mutants)
+            for j in range(self.de.popsize):
+                super().replacement(j, self.mutants[j], mutant_fitness[j])
+            # Clear the mutants population for the next iteration
+            self.mutants = []
 
 
 class DE:
@@ -93,18 +79,18 @@ class DE:
         # different, a dither mechanism is used for crossover (although this is not recommended, but still supported)
         # TODO: Clean duplicate code
         if hasattr(crossover, '__len__'):
-            self.c = crossover
+            self.crossover_bounds = crossover
         else:
-            self.c = (crossover, crossover)
+            self.crossover_bounds = (crossover, crossover)
         if hasattr(mutation, '__len__'):
-            self.fmut = mutation
+            self.mutation_bounds = mutation
         else:
-            self.fmut = (mutation, mutation)
+            self.mutation_bounds = (mutation, mutation)
         # If self-adaptive, include mutation and crossover as two new variables
         bnd = list(bounds)
         if self_adaptive:
-            bnd.append(self.fmut)
-            bnd.append(self.c)
+            bnd.append(self.mutation_bounds)
+            bnd.append(self.crossover_bounds)
             self.extra_params = 2
         B = np.asarray(bnd).T
         self._MIN = B[0]
@@ -137,6 +123,13 @@ class DE:
         selected = self.rnd.choice(idx, size, replace=False)
         return P[selected]
 
+    def mutant(self, target_idx, population, f, cr):
+        # Create a mutant using a base vector
+        trial = self.mutate(target_idx, population, f)
+        # Repair the individual if a gene is out of bounds
+        mutant = self.repair(self.crossover(population[target_idx], trial, cr))
+        return mutant
+
     def evaluate(self, P):
         # Denormalize population matrix to obtain the scaled parameters
         PD = self.denormalize(P)
@@ -148,11 +141,15 @@ class DE:
         a, b, c = self.sample(target, P, 3)
         return a + mutation_factor * (b - c)
 
-    def dither(self, interval):
+    def dither_from_interval(self, interval):
         low, up = min(interval), max(interval)
         if low == up:
             return low
         return self.rnd.uniform(low, up)
+
+    def dither(self, *intervals):
+        return [self.dither_from_interval(interval) for interval in intervals]
+
 
     def iterator(self):
         return DEIterator(self)
@@ -164,7 +161,10 @@ class DE:
         else:
             iterator = self.iterator()
         step = 0
-        for P, fitness, idx in iterator:
+        for status in iterator:
+            idx = status.best_idx
+            P = status.population
+            fitness = status.fitness
             step += 1
             if step > self.maxiters:
                 if show_progress:
@@ -206,16 +206,15 @@ class PDE(DE):
     def __init__(self, fobj, bounds, mutation=(0.5, 1.0), crossover=0.7, maxiters=1000,
                  self_adaptive=False, popsize=None, seed=None, processes=None, chunksize=None):
         super().__init__(fobj, bounds, mutation, crossover, maxiters, self_adaptive, popsize, seed)
+        from multiprocessing import Pool
         self.processes = processes
         self.chunksize = chunksize
         self.name = 'Parallel DE'
-        self.pool = None
+        self.pool = Pool(processes=self.processes)
 
     def iterator(self):
             it = PDEIterator(self)
             try:
-                from multiprocessing import Pool
-                self.pool = Pool(processes=self.processes)
                 for data in it:
                     yield data
             finally:

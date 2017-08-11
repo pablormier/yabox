@@ -1,10 +1,20 @@
 # -*- coding: utf-8 -*-
-from yabox import DE
-from yabox.problems import Ackley
+from yabox import DE, PDE
+from yabox.problems import BaseProblem, Ackley
+
+
+class Fun(BaseProblem):
+    def evaluate(self, x):
+        return sum(x ** 2)
 
 
 def test_de_simple_fun():
     x, f = DE(lambda x: sum(x ** 2), [(-10, 10)]).solve()
+    assert f == 0
+
+
+def test_pde_simple_fun():
+    x, f = PDE(Fun(), [(-10, 10)]).solve()
     assert f == 0
 
 
