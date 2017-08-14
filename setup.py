@@ -1,10 +1,10 @@
 from setuptools import setup
 
-version = '1.0.3'
+exec(open('yabox/version.py').read())
 
 setup(
     name='yabox',
-    version=version,
+    version=__version__,
     description='Yet another black-box optimization library for Python',
     author='Pablo Rodriguez-Mier',
     author_email="pablo.rodriguez.mier@gmail.com",
@@ -16,7 +16,7 @@ setup(
         'show_progress': ['tqdm>=4.15.0']},
     tests_require=['pytest', 'pytest-pep8'],
     url='https://github.com/pablormier/yabox',
-    download_url='https://github.com/pablormier/yabox/archive/{0}.tar.gz'.format(version),
+    download_url='https://github.com/pablormier/yabox/archive/{0}.tar.gz'.format(__version__),
     keywords=['optimization', 'black-box', 'data science', 'evolutionary', 'algorithms'],
     license='Apache License 2.0',
     classifiers=['Intended Audience :: Developers',
