@@ -26,13 +26,14 @@ surface_default_settings = dict(
 
 
 class BaseProblem:
-    def __init__(self, dim=None, bounds=None, default_bounds=(-1, 1)):
+    def __init__(self, dim=None, bounds=None, default_bounds=(-1, 1), name=None):
         if bounds is None:
             bounds = [default_bounds]
         if dim is not None:
             bounds = [default_bounds] * dim
         self.dimensions = len(bounds)
         self.bounds = bounds
+        self.name = name or self.__class__.__name__
 
     def __call__(self, *args, **kwargs):
         return self.evaluate(*args, **kwargs)
@@ -86,10 +87,13 @@ class BaseProblem:
             plt.show()
         return ax
 
+    def __repr__(self):
+        return '{} {}D'.format(self.name, self.dimensions)
+
 
 class Slowdown(BaseProblem):
     def __init__(self, problem, us=1000):
-        super().__init__(problem.bounds)
+        super().__init__(bounds=problem.bounds, name='{} (~{} us)'.format(problem.name, us))
         self.problem = problem
         self.us = us
 
