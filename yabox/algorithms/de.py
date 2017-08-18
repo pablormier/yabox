@@ -120,8 +120,8 @@ class DE:
 
     def sample(self, exclude_index, P, size):
         idx = [i for i in range(len(P)) if i != exclude_index]
-        selected = self.rnd.choice(idx, size, replace=False)
-        return P[selected]
+        self.rnd.shuffle(idx)
+        return P[idx[:size]]
 
     def mutant(self, target_idx, population, f, cr):
         # Create a mutant using a base vector
@@ -150,7 +150,6 @@ class DE:
     def dither(self, *intervals):
         return [self.dither_from_interval(interval) for interval in intervals]
 
-
     def iterator(self):
         return DEIterator(self)
 
@@ -177,19 +176,20 @@ class DE:
         return self._MIN + P * self._DIFF
 
     def _binomial_crossover(self, target, mutant, probability):
-        z = np.copy(target)
-        n = len(z)
-        k = self.rnd.randint(0, n)
-        for i in range(n):
-            if self.rnd.uniform() <= probability or i == k:
-                # transfer gene from mutant
-                z[i] = mutant[i]
-        return z
+        n = len(target)
+        p = self.rnd.rand(n) < probability
+        if not np.any(p):
+            p[self.rnd.randint(0, n)] = True
+        return np.where(p, mutant, target)
 
     def _random_repair(self, x):
-        for i in range(len(x)):
-            if x[i] < 0 or x[i] > 1:
-                x[i] = self.rnd.uniform()
+        # Detect the positions where the para is not valid
+        loc = np.logical_or(x < 0, x > 1)
+        # Count the number of invalid genes
+        count = np.sum(loc)
+        # Replace each position where a True appears by a new random number
+        if count > 0:
+            np.place(x, loc, self.rnd.rand(count))
         return x
 
     def _bound_repair(self, x):
