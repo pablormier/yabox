@@ -10,12 +10,12 @@ class Fun(BaseProblem):
 
 def test_de_simple_fun():
     x, f = DE(lambda x: sum(x ** 2), [(-10, 10)]).solve()
-    assert f == 0
+    assert f < 1e-8
 
 
 def test_pde_simple_fun():
     x, f = PDE(Fun(), [(-10, 10)]).solve()
-    assert f == 0
+    assert f < 1e-8
 
 
 def test_de_adaptive():

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+from .base import *
 
 
 class DEIterator:
@@ -9,7 +10,7 @@ class DEIterator:
         self.fitness = de.evaluate(self.population)
         self.best_fitness = min(self.fitness)
         self.best_idx = np.argmin(self.fitness)
-        self.f, self.cr = de.dither(de.mutation_bounds, de.crossover_bounds)
+        self.f, self.cr = dither(de.mutation_bounds, de.crossover_bounds)
         self.iteration = 0
 
     def __iter__(self):
@@ -26,7 +27,7 @@ class DEIterator:
             yield self
 
     def calculate_params(self):
-        return self.de.dither(self.de.mutation_bounds, self.de.crossover_bounds)
+        return dither(self.de.mutation_bounds, self.de.crossover_bounds)
 
     def create_mutant(self, i):
         return self.de.mutant(i, self.population, self.f, self.cr)
@@ -100,28 +101,29 @@ class DE:
         self.fobj = fobj
         self.maxiters = maxiters
         if popsize is None:
-            # By default it uses 15 individuals for each dimension (as in the scipy's version)
-            self.popsize = self.dims * 15
+            self.popsize = self.dims * 5
         else:
             self.popsize = popsize
-        # Initialize random state
-        if seed is None:
-            self.rnd = np.random.RandomState()
-        elif isinstance(seed, np.random.RandomState):
-            self.rnd = seed
-        else:
-            self.rnd = np.random.RandomState(seed)
-        # Default functions
-        self.crossover = getattr(self, '_binomial_crossover')
-        self.mutate = getattr(self, '_rand1')
-        self.repair = getattr(self, '_random_repair')
-        self.init = getattr(self, '_random_init')
+        self.initialize_random_state(seed)
         self.name = 'DE'
 
-    def sample(self, exclude_index, P, size):
-        idx = [i for i in range(len(P)) if i != exclude_index]
-        self.rnd.shuffle(idx)
-        return P[idx[:size]]
+    def initialize_random_state(self, seed):
+        np.random.seed(seed)
+
+    def crossover(self, target, mutant, probability):
+        return binomial_crossover(target, mutant, probability)
+
+    def mutate(self, target_idx, population, f):
+        return rand1(target_idx, population, f)
+
+    def repair(self, x):
+        return random_repair(x)
+
+    def init(self):
+        return random_init(self.popsize, self.dims)
+
+    def denormalize(self, population):
+        return denormalize(self._MIN, self._DIFF, population)
 
     def mutant(self, target_idx, population, f, cr):
         # Create a mutant using a base vector
@@ -136,19 +138,6 @@ class DE:
         if self.extra_params > 0:
             PD = PD[:, :-self.extra_params]
         return [self.fobj(ind) for ind in PD]
-
-    def _rand1(self, target, P, mutation_factor):
-        a, b, c = self.sample(target, P, 3)
-        return a + mutation_factor * (b - c)
-
-    def dither_from_interval(self, interval):
-        low, up = min(interval), max(interval)
-        if low == up:
-            return low
-        return self.rnd.uniform(low, up)
-
-    def dither(self, *intervals):
-        return [self.dither_from_interval(interval) for interval in intervals]
 
     def iterator(self):
         return DEIterator(self)
@@ -172,35 +161,6 @@ class DE:
                     iterator.close()
                 return self.denormalize(P[idx]), fitness[idx]
 
-    def denormalize(self, P):
-        return self._MIN + P * self._DIFF
-
-    def _binomial_crossover(self, target, mutant, probability):
-        n = len(target)
-        p = self.rnd.rand(n) < probability
-        if not np.any(p):
-            p[self.rnd.randint(0, n)] = True
-        return np.where(p, mutant, target)
-
-    def _random_repair(self, x):
-        # Detect the positions where the para is not valid
-        loc = np.logical_or(x < 0, x > 1)
-        # Count the number of invalid genes
-        count = np.sum(loc)
-        # Replace each position where a True appears by a new random number
-        if count > 0:
-            np.place(x, loc, self.rnd.rand(count))
-        return x
-
-    def _bound_repair(self, x):
-        return np.clip(x, 0, 1)
-
-    def _lhs_init(self):
-        pass
-
-    def _random_init(self):
-        return self.rnd.rand(self.popsize, self.dims)
-
 
 class PDE(DE):
     def __init__(self, fobj, bounds, mutation=(0.5, 1.0), crossover=0.7, maxiters=1000,
@@ -213,12 +173,12 @@ class PDE(DE):
         self.pool = Pool(processes=self.processes)
 
     def iterator(self):
-            it = PDEIterator(self)
-            try:
-                for data in it:
-                    yield data
-            finally:
-                self.pool.terminate()
+        it = PDEIterator(self)
+        try:
+            for data in it:
+                yield data
+        finally:
+            self.pool.terminate()
 
     def evaluate(self, P):
         PD = self.denormalize(P)
