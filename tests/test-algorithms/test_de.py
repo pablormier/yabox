@@ -8,14 +8,29 @@ class Fun(BaseProblem):
         return sum(x ** 2)
 
 
-def test_de_simple_fun():
+def test_de_simple_fun_1d():
     x, f = DE(lambda x: sum(x ** 2), [(-10, 10)]).solve()
-    assert f < 1e-8
+    assert f < 1e-2
+
+
+def test_de_simple_fun_2d():
+    x, f = DE(lambda x: sum(x ** 2), [(-10, 10), (-10, 10)]).solve()
+    assert f < 1e-2
 
 
 def test_pde_simple_fun():
     x, f = PDE(Fun(), [(-10, 10)]).solve()
-    assert f < 1e-8
+    assert f < 1e-2
+
+
+def test_pde_simple_fun_2d():
+    x, f = PDE(Fun(), [(-10, 10), (-10, 10)]).solve()
+    assert f < 1e-2
+
+
+def test_pde_no_processes():
+    x, f = PDE(Fun(), [(-10, 10), (-10, 10)], processes=0).solve()
+    assert f < 1e-2
 
 
 def test_de_adaptive():
@@ -28,4 +43,3 @@ def test_de_ackley_fun():
     problem = Ackley()
     x, f = DE(problem, problem.bounds).solve()
     assert f < 1e-8
-

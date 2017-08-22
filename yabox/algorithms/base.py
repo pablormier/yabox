@@ -10,15 +10,19 @@ def binomial_crossover(target, mutant, cr):
     return np.where(p, mutant, target)
 
 
-def rand1(target_idx, population, f):
-    a, b, c = random_sample(population, target_idx, 3)
-    return a + f * (b - c)
-
-
 def random_sample(population, exclude, size):
-    idx = [i for i in range(len(population)) if i != exclude]
-    np.random.shuffle(idx)
-    return population[idx[:size]]
+    # Optimized version using numpy
+    idxs = [i for i in range(population.shape[0]) if i != exclude]
+    np.random.shuffle(idxs)
+    # Select the number of elements specified by size
+    sample = idxs[:size]
+    return population[sample]
+
+
+def rand1(target_idx, population, f):
+    sample = random_sample(population, target_idx, 3)
+    a, b, c = sample
+    return a + f * (b - c)
 
 
 def denormalize(min, diff, matrix):

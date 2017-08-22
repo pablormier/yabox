@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import numpy as np
 from .base import *
 
 
@@ -33,7 +32,7 @@ class DEIterator:
         return self.de.mutant(i, self.population, self.f, self.cr)
 
     def replace(self, i, mutant):
-        mutant_fitness, = self.de.evaluate([mutant])
+        mutant_fitness, = self.de.evaluate(np.asarray([mutant]))
         return self.replacement(i, mutant, mutant_fitness)
 
     def replacement(self, target_idx, mutant, mutant_fitness):
@@ -50,12 +49,13 @@ class DEIterator:
 class PDEIterator(DEIterator):
     def __init__(self, de):
         super().__init__(de)
-        self.mutants = []
+        self.mutants = np.zeros((de.popsize, de.dims))
 
     def create_mutant(self, i):
         mutant = super().create_mutant(i)
         # Add to the mutants population for parallel evaluation (later)
-        self.mutants.append(mutant)
+        # self.mutants.append(mutant)
+        self.mutants[i, :] = mutant
         return mutant
 
     def replace(self, i, mutant):
@@ -65,8 +65,6 @@ class PDEIterator(DEIterator):
             mutant_fitness = self.de.evaluate(self.mutants)
             for j in range(self.de.popsize):
                 super().replacement(j, self.mutants[j], mutant_fitness[j])
-            # Clear the mutants population for the next iteration
-            self.mutants = []
 
 
 class DE:
@@ -93,7 +91,7 @@ class DE:
             bnd.append(self.mutation_bounds)
             bnd.append(self.crossover_bounds)
             self.extra_params = 2
-        B = np.asarray(bnd).T
+        B = np.asarray(bnd, dtype='f8').T
         self._MIN = B[0]
         self._MAX = B[1]
         self._DIFF = np.fabs(self._MAX - self._MIN)
@@ -137,6 +135,9 @@ class DE:
         PD = self.denormalize(P)
         if self.extra_params > 0:
             PD = PD[:, :-self.extra_params]
+        return self.evaluate_denormalized(PD)
+
+    def evaluate_denormalized(self, PD):
         return [self.fobj(ind) for ind in PD]
 
     def iterator(self):
@@ -159,7 +160,7 @@ class DE:
                     iterator.n = self.maxiters
                     iterator.refresh()
                     iterator.close()
-                return self.denormalize(P[idx]), fitness[idx]
+                return self.denormalize(P[idx].reshape(-1, 1)), fitness[idx]
 
 
 class PDE(DE):
@@ -170,7 +171,9 @@ class PDE(DE):
         self.processes = processes
         self.chunksize = chunksize
         self.name = 'Parallel DE'
-        self.pool = Pool(processes=self.processes)
+        self.pool = None
+        if processes is None or processes > 0:
+            self.pool = Pool(processes=self.processes)
 
     def iterator(self):
         it = PDEIterator(self)
@@ -178,11 +181,11 @@ class PDE(DE):
             for data in it:
                 yield data
         finally:
-            self.pool.terminate()
+            if self.pool is not None:
+                self.pool.terminate()
 
-    def evaluate(self, P):
-        PD = self.denormalize(P)
-        extra = self.extra_params
-        if extra > 0:
-            PD = PD[:, :-extra]
-        return list(self.pool.map(self.fobj, PD, chunksize=self.chunksize))
+    def evaluate_denormalized(self, PD):
+        if self.pool is not None:
+            return list(self.pool.map(self.fobj, PD, chunksize=self.chunksize))
+        else:
+            return super().evaluate_denormalized(PD)
