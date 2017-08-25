@@ -41,9 +41,12 @@ class BaseProblem:
     def evaluate(self, x):
         raise NotImplementedError('Implement the evaluation function')
 
-    def plot2d(self, points=100, figure=None, figsize=(12, 8), imshow_kwds=None):
+    def plot2d(self, points=100, figure=None, figsize=(12, 8), contour=True, contour_levels=20,
+               imshow_kwds=None, contour_kwds=None):
         if imshow_kwds is None:
             imshow_kwds = dict(cmap=cm.PuRd_r)
+        if contour_kwds is None:
+            contour_kwds = dict(cmap=cm.PuRd_r)
         xbounds, ybounds = self.bounds[0], self.bounds[1]
         x = np.linspace(min(xbounds), max(xbounds), points)
         y = np.linspace(min(xbounds), max(xbounds), points)
@@ -54,7 +57,10 @@ class BaseProblem:
         else:
             fig = figure
         ax = fig.gca()
-        im = ax.imshow(Z, **imshow_kwds)
+        if contour:
+            ax.contourf(X, Y, Z, contour_levels, **contour_kwds)
+        else:
+            im = ax.imshow(Z, **imshow_kwds)
         if figure is None:
             plt.show()
         return fig, ax
@@ -75,11 +81,18 @@ class BaseProblem:
         Z = self(np.asarray([X, Y]))
         if ax3d is None:
             fig = plt.figure(figsize=figsize)
+            fig.patch.set_alpha(0.0)
             ax = Axes3D(fig)
             if view_init is not None:
                 ax.view_init(*view_init)
         else:
             ax = ax3d
+        # Make the background transparent
+        ax.patch.set_alpha(0.0)
+        # Make each axis pane transparent as well
+        ax.w_xaxis.set_pane_color((0.0, 0.0, 0.0, 0.0))
+        ax.w_yaxis.set_pane_color((0.0, 0.0, 0.0, 0.0))
+        ax.w_zaxis.set_pane_color((0.0, 0.0, 0.0, 0.0))
         surf = ax.plot_surface(X, Y, Z, **surface_settings)
         contour_settings['offset'] = np.min(Z)
         cont = ax.contourf(X, Y, Z, contour_levels, **contour_settings)
