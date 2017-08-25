@@ -16,7 +16,7 @@ setup(
         'show_progress': ['tqdm>=4.15.0']},
     tests_require=['pytest', 'pytest-pep8'],
     url='https://github.com/pablormier/yabox',
-    download_url='https://github.com/pablormier/yabox/archive/{0}.tar.gz'.format(__version__),
+    download_url='https://github.com/pablormier/yabox/archive/v{0}.tar.gz'.format(__version__),
     keywords=['optimization', 'black-box', 'data science', 'evolutionary', 'algorithms'],
     license='Apache License 2.0',
     classifiers=['Intended Audience :: Developers',
