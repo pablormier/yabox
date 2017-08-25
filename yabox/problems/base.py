@@ -6,7 +6,7 @@ import numpy as np
 from matplotlib import cm
 
 # Default configuration
-contour_default_settings = dict(
+contourParams = dict(
     zdir='z',
     alpha=0.5,
     zorder=1,
@@ -14,7 +14,7 @@ contour_default_settings = dict(
     cmap=cm.PuRd_r
 )
 
-surface_default_settings = dict(
+surfaceParams = dict(
     rstride=1,
     cstride=1,
     linewidth=0.1,
@@ -29,8 +29,8 @@ class BaseProblem:
     def __init__(self, dim=None, bounds=None, default_bounds=(-1, 1), name=None):
         if bounds is None:
             bounds = [default_bounds]
-        if dim is not None:
-            bounds = [default_bounds] * dim
+            if dim is not None:
+                bounds = [default_bounds] * dim
         self.dimensions = len(bounds)
         self.bounds = bounds
         self.name = name or self.__class__.__name__
@@ -68,8 +68,8 @@ class BaseProblem:
     def plot3d(self, points=100, contour_levels=20, ax3d=None, figsize=(12, 8),
                view_init=None, surface_kwds=None, contour_kwds=None):
         from mpl_toolkits.mplot3d import Axes3D
-        contour_settings = dict(contour_default_settings)
-        surface_settings = dict(surface_default_settings)
+        contour_settings = dict(contourParams)
+        surface_settings = dict(surfaceParams)
         if contour_kwds is not None:
             contour_settings.update(contour_kwds)
         if surface_kwds is not None:
@@ -81,7 +81,6 @@ class BaseProblem:
         Z = self(np.asarray([X, Y]))
         if ax3d is None:
             fig = plt.figure(figsize=figsize)
-            fig.patch.set_alpha(0.0)
             ax = Axes3D(fig)
             if view_init is not None:
                 ax.view_init(*view_init)

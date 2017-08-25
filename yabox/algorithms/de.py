@@ -141,7 +141,7 @@ class DE:
         return [self.fobj(ind) for ind in PD]
 
     def iterator(self):
-        return DEIterator(self)
+        return iter(DEIterator(self))
 
     def solve(self, show_progress=False):
         if show_progress:
