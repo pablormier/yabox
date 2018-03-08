@@ -96,14 +96,16 @@ class DE:
         # Convert crossover param to an interval, as in mutation. If min/max values in the interval are
         # different, a dither mechanism is used for crossover (although this is not recommended, but still supported)
         # TODO: Clean duplicate code
-        if hasattr(crossover, '__len__'):
-            self.crossover_bounds = crossover
-        else:
-            self.crossover_bounds = (crossover, crossover)
-        if hasattr(mutation, '__len__'):
-            self.mutation_bounds = mutation
-        else:
-            self.mutation_bounds = (mutation, mutation)
+        
+        self.crossover_bounds = crossover
+        self.mutation_bounds = mutation
+
+        if getattr(crossover, '__len__', None) is None:
+            self.crossover_bounds = [crossover, crossover]
+
+        if getattr(mutation, '__len__', None) is None:
+            self.mutation_bounds = [mutation, mutation]
+
         # If self-adaptive, include mutation and crossover as two new variables
         bnd = list(bounds)
         if self_adaptive:
