@@ -9,27 +9,46 @@ class DEIterator:
         self.fitness = de.evaluate(self.population)
         self.best_fitness = min(self.fitness)
         self.best_idx = np.argmin(self.fitness)
+        # F and CR control parameters
         self.f, self.cr = dither(de.mutation_bounds, de.crossover_bounds)
+        # Last mutant created
+        self.mutant = None
+        # Index of the last target vector used for mutation/crossover
+        self.idx_target = 0
+        # Current iteration of the algorithm (it is incremented
+        # only when all vectors of the population are processed)
         self.iteration = 0
 
     def __iter__(self):
         de = self.de
-        while True:
+        # This is the main DE loop. For each vector (target vector) in the
+        # population, a mutant is created by combining different vectors in
+        # the population (depending on the strategy selected). If the mutant
+        # is better than the target vector, the target vector is replaced.
+        while self.iteration < self.de.maxiters:
             # Compute values for f and cr in each iteration
             self.f, self.cr = self.calculate_params()
-            for i in range(de.popsize):
+            for self.idx_target in range(de.popsize):
                 # Create a mutant using a base vector, and the current f and cr values
-                mutant = self.create_mutant(i)
+                mutant = self.create_mutant(self.idx_target)
                 # Evaluate and replace if better
-                self.replace(i, mutant)
+                self.replace(self.idx_target, mutant)
+                # Yield the current state of the algorithm
+                yield self
             self.iteration += 1
-            yield self
 
     def calculate_params(self):
         return dither(self.de.mutation_bounds, self.de.crossover_bounds)
 
     def create_mutant(self, i):
-        return self.de.mutant(i, self.population, self.f, self.cr)
+        # Simple self-adaptive strategy, where the F and CR control
+        # parameters are inherited from the base vector.
+        if self.de.adaptive:
+            # Use the params of the target vector
+            dt = self.de.denormalize(self.population[i])
+            self.f, self.cr = dt[-2:]
+        self.mutant = self.de.mutant(i, self.population, self.f, self.cr)
+        return self.mutant
 
     def replace(self, i, mutant):
         mutant_fitness, = self.de.evaluate(np.asarray([mutant]))
@@ -105,16 +124,20 @@ class DE:
         self.initialize_random_state(seed)
         self.name = 'DE'
 
-    def initialize_random_state(self, seed):
+    @staticmethod
+    def initialize_random_state(seed):
         np.random.seed(seed)
 
-    def crossover(self, target, mutant, probability):
+    @staticmethod
+    def crossover(target, mutant, probability):
         return binomial_crossover(target, mutant, probability)
 
-    def mutate(self, target_idx, population, f):
+    @staticmethod
+    def mutate(target_idx, population, f):
         return rand1(target_idx, population, f)
 
-    def repair(self, x):
+    @staticmethod
+    def repair(x):
         return random_repair(x)
 
     def init(self):
@@ -143,19 +166,25 @@ class DE:
     def iterator(self):
         return iter(DEIterator(self))
 
+    def geniterator(self):
+        it = self.iterator()
+        iteration = 0
+        for step in it:
+            if step.iteration != iteration:
+                iteration = step.iteration
+                yield step
+
     def solve(self, show_progress=False):
         if show_progress:
             from tqdm import tqdm
             iterator = tqdm(self.iterator(), total=self.maxiters, desc='Optimizing ({0})'.format(self.name))
         else:
             iterator = self.iterator()
-        step = 0
-        for status in iterator:
-            idx = status.best_idx
-            P = status.population
-            fitness = status.fitness
-            step += 1
-            if step > self.maxiters:
+        for step in iterator:
+            idx = step.best_idx
+            P = step.population
+            fitness = step.fitness
+            if step.iteration > self.maxiters:
                 if show_progress:
                     iterator.n = self.maxiters
                     iterator.refresh()
