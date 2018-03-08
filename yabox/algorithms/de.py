@@ -96,7 +96,7 @@ class DE:
         # Convert crossover param to an interval, as in mutation. If min/max values in the interval are
         # different, a dither mechanism is used for crossover (although this is not recommended, but still supported)
         # TODO: Clean duplicate code
-        
+
         self.crossover_bounds = crossover
         self.mutation_bounds = mutation
 
@@ -112,9 +112,7 @@ class DE:
             bnd.append(self.mutation_bounds)
             bnd.append(self.crossover_bounds)
             self.extra_params = 2
-        B = np.asarray(bnd, dtype='f8').T
-        self._MIN = B[0]
-        self._MAX = B[1]
+        self._MIN, self._MAX = np.asarray(bnd, dtype='f8').T
         self._DIFF = np.fabs(self._MAX - self._MIN)
         self.dims = len(bnd)
         self.fobj = fobj
