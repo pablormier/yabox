@@ -242,7 +242,7 @@ class DE:
 class PDE(DE):
     def __init__(self, fobj, bounds, mutation=(0.5, 1.0), crossover=0.7, maxiters=1000,
                  self_adaptive=False, popsize=None, seed=None, processes=None, chunksize=None):
-        super().__init__(fobj, bounds, mutation, crossover, maxiters, self_adaptive, popsize, seed)
+        
         from multiprocessing import Pool
         self.processes = processes
         self.chunksize = chunksize
@@ -250,15 +250,47 @@ class PDE(DE):
         self.pool = None
         if processes is None or processes > 0:
             self.pool = Pool(processes=self.processes)
+        
+        super().__init__(fobj, bounds, mutation, crossover, maxiters, self_adaptive, popsize, seed)
+
+        self.mutants = np.zeros((self.popsize, self.dims))
+        
+    
+    def create_mutant(self, i):
+        mutant = super().create_mutant(i)
+        # Add to the mutants population for parallel evaluation (later)
+        # self.mutants.append(mutant)
+        self.mutants[i, :] = mutant
+
+    def replace(self):
+        # Evaluate the whole new population (class PDE implements a parallel version of evaluate)
+        mutant_fitness = self.evaluate(self.mutants)
+        
+        # We have to make super().replacement static in other to parallelized it
+        # self.pool.starmap(super().replacement, zip(range(self.popsize), self.mutants, mutant_fitness), chunksize=self.chunksize)
+        for j, (mutant, fitness) in enumerate(zip(self.mutants, mutant_fitness)):
+            super().replacement(j, mutant, fitness)
 
     def iterator(self):
-        it = PDEIterator(self)
-        try:
-            for data in it:
-                yield data
-        finally:
-            if self.pool is not None:
-                self.pool.terminate()
+        # This is the main DE loop. For each vector (target vector) in the
+        # population, a mutant is created by combining different vectors in
+        # the population (depending on the strategy selected). If the mutant
+        # is better than the target vector, the target vector is replaced.
+        while self.iteration < self.maxiters:
+            # Compute values for f and cr in each iteration
+            self.f, self.cr = self.calculate_params()
+            for self.idx_target in range(self.popsize):
+                # Create a mutant using a base vector, and the current f and cr values
+                self.create_mutant(self.idx_target)
+            
+            # Evaluate and replace if better
+            self.replace()
+            # Yield the current state of the algorithm
+            yield self.population, self.fitness, self.best_idx
+            self.iteration += 1
+
+        if self.pool is not None:
+            self.pool.terminate()
 
     def evaluate_denormalized(self, PD):
         if self.pool is not None:
