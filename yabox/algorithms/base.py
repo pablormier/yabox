@@ -10,23 +10,21 @@ def binomial_crossover(target, mutant, cr):
     return np.where(p, mutant, target)
 
 
-def random_sample(population, exclude, size):
+def random_sample(population, exclude, size=3):
     # Optimized version using numpy
-    idxs = [i for i in range(population.shape[0]) if i != exclude]
-    np.random.shuffle(idxs)
-    # Select the number of elements specified by size
-    sample = idxs[:size]
+    idxs = list(range(population.shape[0]))
+    idxs.remove(exclude)
+    sample = np.random.choice(idxs, size=size, replace=False)
     return population[sample]
 
 
 def rand1(target_idx, population, f):
-    sample = random_sample(population, target_idx, 3)
-    a, b, c = sample
+    a, b, c = random_sample(population, target_idx)
     return a + f * (b - c)
 
 
-def denormalize(min, diff, matrix):
-    return min + matrix * diff
+def denormalize(min_, diff, matrix):
+    return min_ + matrix * diff
 
 
 def random_repair(x):
