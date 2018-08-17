@@ -189,7 +189,8 @@ class DE:
                     iterator.n = self.maxiters
                     iterator.refresh()
                     iterator.close()
-                return self.denormalize(P[idx].reshape(-1, 1)), fitness[idx]
+                break
+        return self.denormalize(P[idx].reshape(-1, 1)), fitness[idx]
 
 
 class PDE(DE):
