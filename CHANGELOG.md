@@ -1,5 +1,12 @@
 # Change Log
 
+## [v1.0.4](https://github.com/pablormier/yabox/tree/v1.0.4) (2019-08-25)
+[Full Changelog](https://github.com/pablormier/yabox/compare/v1.0.3...v1.0.4)
+
+**Implemented enhancements:**
+
+- Fixed problem in solve() method (thanks @KOLANICH)
+
 ## [v1.0.3](https://github.com/pablormier/yabox/tree/v1.0.3) (2017-08-25)
 [Full Changelog](https://github.com/pablormier/yabox/compare/v1.0.2...v1.0.3)
 
