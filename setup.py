@@ -13,7 +13,7 @@ setup(
     extras_require={
         'notebooks': ['jupyter>=1.0.0'],
         'visualization': ['matplotlib>=1.3'],
-        'show_progress': ['tqdm>=4.15.0']},
+        'show_progress': ['tqdm>=4.46.0']},
     tests_require=['pytest', 'pytest-pep8'],
     url='https://github.com/pablormier/yabox',
     download_url='https://github.com/pablormier/yabox/archive/v{0}.tar.gz'.format(__version__),
