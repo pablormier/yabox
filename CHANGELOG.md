@@ -1,5 +1,19 @@
 # Change Log
 
+## [v1.0.5](https://github.com/pablormier/yabox/tree/v1.0.5) (2020-05-09)
+[Full Changelog](https://github.com/pablormier/yabox/compare/v1.0.4...v1.0.5)
+
+**Implemented enhancements:**
+
+- Add a new notebook with simple examples
+
+**Fixed bugs:**
+
+- Fix problems with the limit on maxiters.
+- Fix notebooks.
+
+
+
 ## [v1.0.4](https://github.com/pablormier/yabox/tree/v1.0.4) (2019-08-25)
 [Full Changelog](https://github.com/pablormier/yabox/compare/v1.0.3...v1.0.4)
 

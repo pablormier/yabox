@@ -25,7 +25,7 @@ class DEIterator:
         # population, a mutant is created by combining different vectors in
         # the population (depending on the strategy selected). If the mutant
         # is better than the target vector, the target vector is replaced.
-        while self.iteration < self.de.maxiters:
+        while self.iteration <= self.de.maxiters:
             # Compute values for f and cr in each iteration
             self.f, self.cr = self.calculate_params()
             for self.idx_target in range(de.popsize):
@@ -176,20 +176,14 @@ class DE:
 
     def solve(self, show_progress=False):
         if show_progress:
-            from tqdm import tqdm
-            iterator = tqdm(self.iterator(), total=self.maxiters, desc='Optimizing ({0})'.format(self.name))
+            from tqdm.auto import tqdm
+            iterator = tqdm(self.geniterator(), total=self.maxiters, desc='Optimizing ({0})'.format(self.name))
         else:
-            iterator = self.iterator()
+            iterator = self.geniterator()
         for step in iterator:
             idx = step.best_idx
             P = step.population
             fitness = step.fitness
-            if step.iteration > self.maxiters:
-                if show_progress:
-                    iterator.n = self.maxiters
-                    iterator.refresh()
-                    iterator.close()
-                break
         return self.denormalize(P[idx].reshape(-1, 1)), fitness[idx]
 
 

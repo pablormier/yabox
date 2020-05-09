@@ -54,6 +54,8 @@ Example using Differential Evolution and showing progress (requires tqdm)
 
 ![Optimization example](../master/docs/images/opt_example.gif?raw=true)
 
+**For more examples, check the notebooks included in the project**
+
 ## About
 
 This library is inspired in the scipy's differential evolution implementation. The main goal of Yabox is to include a larger set of stochastic black-box optimization algorithms plus many utilities, all in a small library with minimal dependencies.
