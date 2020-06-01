@@ -54,6 +54,15 @@ Example using Differential Evolution and showing progress (requires tqdm)
 
 ![Optimization example](../master/docs/images/opt_example.gif?raw=true)
 
+Yabox includes a parallel version of Differential Evolution. Import PDE instead of DE:
+
+```python
+>>> from yabox import PDE
+>>> PDE(lambda x: sum(x**2), [(-10, 10)]).solve()
+(array([ 0.]), 0.0)
+```
+
+
 **For more examples, check the notebooks included in the project**
 
 ## About
