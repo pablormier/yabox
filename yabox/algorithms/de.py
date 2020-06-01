@@ -184,7 +184,7 @@ class DE:
             idx = step.best_idx
             P = step.population
             fitness = step.fitness
-        return self.denormalize(P[idx].reshape(-1, 1)), fitness[idx]
+        return self.denormalize(P[idx].reshape(1, -1)), fitness[idx]
 
 
 class PDE(DE):
