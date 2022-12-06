@@ -174,9 +174,10 @@ class DE:
                 iteration = step.iteration
                 yield step
 
-    def solve(self, show_progress=False):
+    def solve(self, show_progress=False, tqdm=None):
         if show_progress:
-            from tqdm.auto import tqdm
+            if tqdm is None:
+                from tqdm.auto import tqdm
             iterator = tqdm(self.geniterator(), total=self.maxiters, desc='Optimizing ({0})'.format(self.name))
         else:
             iterator = self.geniterator()
